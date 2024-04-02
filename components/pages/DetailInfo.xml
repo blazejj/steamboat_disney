@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="DetailInfo" extends="BasePage" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+    <script type="text/brightscript" uri="DetailInfo.brs" />
+    <interface>
+		<field id="selectedContent" type="node" onChange="onSelectedContent" />
+        <field id="exit" type="boolean" alwaysNotify="true" />
+	</interface>
+    <children>
+        <Poster
+                id="infoPoster"
+                translation="[0,0]"
+                loadDisplayMode="scaleToFit"
+                opacity=".10"
+                visible="false"
+        />
+        <LayoutGroup
+            id="infoGroup"
+            layoutDirection="vert"
+            vertAlignment="top"
+            itemSpacings="0"
+            translation="[0,0]"
+            visible="false"
+        >
+            <Label
+                id="lblTitle"
+                horizAlign="center"
+                color="0x8888ffff"
+                vertAlign="center"
+                wrap="true"
+                numLines="2"
+            />
+            <Label
+                id="lblReleased"
+                horizAlign="center"
+                color="0xeeeeeedd"
+                vertAlign="center"
+                text="Released in {releaseYear}"
+            />
+            <Label
+                id="lblRatings"
+                horizAlign="center"
+                color="0xeeeeeedd"
+                vertAlign="center"
+                text="Rated {ratings}"
+            />
+        </LayoutGroup>
+    </children>
+</component>

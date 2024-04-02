@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="Home" extends="BasePage" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+    <script type="text/brightscript" uri="Home.brs" />
+	<interface>
+        <field id="payload" type="assocarray" alwaysNotify="true" onChange="onPayload" />
+		<field id="setFocus" type="boolean" alwaysNotify="true" onChange="handleFocus" />
+	</interface>
+    <children>
+        <Label
+            id="pageTitle"
+            text=""
+			color="0xffffff77"
+			visible="false"
+			font="font:MediumBoldSystemFont"
+        />
+		<RowList
+			id="HomeRowList"
+			rowTitleComponentName="RowListTitle"
+			itemComponentName="RowListItem"
+			showRowLabel="[true]"
+			numRows="4"
+			drawFocusFeedback="true"
+			drawFocusFeedbackOnTop="true"
+			vertFocusAnimationStyle="fixedFocus"
+			rowFocusAnimationStyle="floatingFocus"
+			visible="false"
+		/>
+    </children>
+</component>

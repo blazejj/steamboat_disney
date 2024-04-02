@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="RowListItem" extends="Group" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+    <interface>
+        <field id="itemContent" type="node" onChange="onItemContent"/>
+        <field id="focusPercent" type="float" onChange="onFocus"/>
+        <field id="rowFocusPercent" type="float" onChange="onRowFocus"/>
+    </interface>
+    <script type="text/brightscript" uri="RowListItem.brs" />
+    <children>
+            <Poster
+                id="itemImage"
+                translation="[8,4]"
+                loadDisplayMode="scaleToFit"
+                visible="false"
+            />
+            <ScrollingLabel
+                id="itemLabel"
+                height = "0"
+                scrollSpeed="20"
+                visible="false"
+            />
+    </children>
+</component>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="BaseService" extends="Task" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+    <script type="text/brightscript" uri="pkg:/components/utils/HttpClient.brs" />
+    <script type="text/brightscript" uri="pkg:/components/utils/utilities.brs" />
+	<script type="text/brightscript">
+     <![CDATA[
+        sub init()
+            m.httpClient = HttpClient()
+        end sub
+     ]]>
+    </script>
+</component>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="Landing" extends="Scene" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+    <script type="text/brightscript" uri="Landing.brs" />
+	<interface>
+		<field id="setLoadSpinner" type="boolean" alias="loadingSpinner.visible" />
+	</interface>
+    <children>
+		<Home id="homePage" />
+		<ProgressDialog
+			id="loadingSpinner"
+			backgroundUri=""
+			visible="true"
+		/>
+    </children>
+</component>

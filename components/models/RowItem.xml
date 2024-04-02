@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component name="RowItem" extends="ContentNode" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
+	<interface>
+		<field id="title" type="string" />
+		<field id="thumbnailUrl" type="string" />
+		<field id="itemDim" type="array" />
+		<field id="backupThumbnail" type="string" />
+		<field id="focusScaleRatio" type="float" />
+		<field id="tileSpacing" type="integer" />
+		<field id="releaseYear" type="string" />
+		<field id="ratings" type="string" />
+	</interface>
+</component>
