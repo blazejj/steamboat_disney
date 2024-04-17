@@ -1,6 +1,31 @@
 sub init()
-    m.top.functionName = "loadCatalog"
     m.config = getConfig()
+    m.top.functionName = "startService"
+end sub
+
+sub startService()
+    try
+        m.port = CreateObject("roMessagePort")
+        m.top.observeField("refReq", m.port)
+        loadCatalog()
+
+        while (true)
+            msg = wait(0, m.port)
+            msgType = type(msg)
+            if msgType = "roSGNodeEvent" then
+
+                if msg.getField() = "refReq" then
+                    request = msg.getData()
+                    loadRefData(request)
+                end if
+            end if
+        end while
+    catch e
+        ? "Error: DataService: startService:"
+        for each item in e.backtrace
+            ? item
+        end for
+    end try
 end sub
 
 sub loadCatalog()
@@ -8,100 +33,119 @@ sub loadCatalog()
         apiResponse = m.httpClient.GetToString(m.config.data_api.homeUrl)
         if apiResponse <> invalid and apiResponse.code = 200 and apiResponse.data <> invalid then
             catalog = ParseJson(apiResponse.data)
-            catalogObj = catalog.data.StandardCollection
+            catalogObj = catalog.data
             parseCatalog(catalogObj)
         else
             m.top.payload = {errorGettingCatalog: true}
         end if
     catch e
         m.top.payload = {errorGettingCatalog: true}
-        ? "Error: DataService: LoadFullCatalog:"
+        ? "Error: DataService: loadCatalog:"
         for each item in e.backtrace
             ? item
         end for
     end try
 end sub
 
-sub parseCatalog(catalogObj as Object)
-    errorGettingCatalog = false
-    pageTitle = ""
-    rowContainers = []
-    if catalogObj <> invalid then
-        content = catalogObj.text.title.full.collection.default.content
-        if content <> invalid then
-            pageTitle = content
+sub loadRefData(request as object)
+    try
+        refUrl = m.config.data_api.refUrl.replace("{refId}", request.refId)
+        apiResponse = m.httpClient.GetToString(refUrl)
+
+        if apiResponse <> invalid and apiResponse.code = 200 and apiResponse.data <> invalid then
+            refData = ParseJson(apiResponse.data)
+            refDataObj = refData.data
+            parseRefData(refDataObj)
+        else
+            m.top.refPayload = {errorGettingRefData: true}
         end if
+    catch e
+        m.top.refPayload = {errorGettingRefData: true}
+        ? "Error: DataService: loadRefData:"
+        for each item in e.backtrace
+            ? item
+        end for
+    end try
+end sub
 
-        if Type(catalogObj.containers) = "roArray"
-            apiRows = catalogObj.containers
-            for each row in apiRows
-                rowObj = {}
-                rowSet = row.set
+sub parseRefData(refDataObj as object)
+    errorGettingRefData = false
+    rowItems = getTargetObj(refDataObj, "{}/items")'"CuratedSet/items")
+    rowObj = {}
+    rowObj.rowTitle = m.top.refReq.rowTitle
+    rowObj.rowIndex = m.top.refReq.rowIndex
+    rowObj.setId = getTargetObj(refDataObj, "{}/setId")'"CuratedSet/setId")
+    rowItemsContainers = []
 
-                if rowSet <> invalid then
-                    content = rowSet.text.title.full.set.default.content
+    if rowItems <> invalid then
+        for each rowItem in rowItems
+            rowItemObj = {}
+            rowItemObj.tileTitle = getTargetObj(rowItem, "text/title/full/{}/default/content")
+            rowItemObj.thumbnailUrl = getTargetObj(rowItem, "image/tile/1.78/{}/default/url")
+            releases = getTargetObj(rowItem, "releases")
 
-                    if content <> invalid then
-                        rowObj.rowTitle = content
-                    end if
+            if Type(releases) = "roArray" and releases.Count() = 1 then
+                rowItemObj.releaseYear = getTargetObj(releases[0], "releaseYear")
+            end if
+            ratings = getTargetObj(rowItem, "ratings")
 
-                    if rowSet <> invalid and Type(rowSet.items) = "roArray" then
-                        rowItems = rowSet.items
-                        rowItemsContainers = []
-                        for each rowItem in rowItems
-                            rowItemObj = {}
+            if Type(ratings) = "roArray" and ratings.Count() = 1 then
+                rowItemObj.ratings = getTargetObj(ratings[0], "value")
+            end if
+            rowItemsContainers.Push(rowItemObj)
+        end for
+    end if
+    rowObj.rowItems = rowItemsContainers
+    refPayload = CreateObject("roAssociativeArray")
+    refPayload.AddReplace("errorGettingRefData", errorGettingRefData)
+    refPayload.AddReplace("rowContainer", rowObj)
+    m.top.refPayload = refPayload
+end sub
 
-                            'fetching row item title
-                            currNode = rowItem.text.title.full
-                            if currNode <> invalid then
-                                arbitraryObjNode = getArbSingleChildObj(currNode)
+sub parseCatalog(catalogObj as object)
+    errorGettingCatalog = false
+    pageTitle = getTargetObj(catalogObj, "StandardCollection/text/title/full/collection/default/content")
+    apiRows = getTargetObj(catalogObj, "StandardCollection/containers")
+    rowContainers = []
+    rowIndex = 0
 
-                                itemTitle = arbitraryObjNode.default.content
-                                if itemTitle <> invalid then
-                                    rowItemObj.tileTitle = itemTitle
-                                end if
-                            end if
+    for each apiRow in apiRows
+        rowObj = {}
+        rowObj.rowTitle = getTargetObj(apiRow, "set/text/title/full/set/default/content")
+        rowObj.rowIndex = rowIndex
+        rowIndex++
+        rowObj.setId = getTargetObj(apiRow, "set/setId")
+        rowObj.refId = getTargetObj(apiRow, "set/refId")
+        rowItems = getTargetObj(apiRow, "set/items")
+        rowItemsContainers = []
 
-                            'fetching tile thumbnail url
-                            currNode = rowItem.image.tile["1.78"]
-                            if currNode <> invalid then
-                                arbitraryObjNode = getArbSingleChildObj(currNode)
+        if rowItems <> invalid then
+            for each rowItem in rowItems
+                rowItemObj = {}
+                rowItemObj.tileTitle = getTargetObj(rowItem, "text/title/full/{}/default/content")
+                rowItemObj.thumbnailUrl = getTargetObj(rowItem, "image/tile/1.78/{}/default/url")
+                releases = getTargetObj(rowItem, "releases")
 
-                                itemThumbnailUrl = arbitraryObjNode.default.url
-                                if itemThumbnailUrl <> invalid then
-                                    rowItemObj.thumbnailUrl = itemThumbnailUrl
-                                end if
-                            end if
-
-                            'fetching release year
-                            currNode = rowItem.releases
-                            if Type(currNode) = "roArray" and currNode.Count() = 1
-                                currNode = currNode[0].releaseYear
-                                if currNode <> invalid
-                                    rowItemObj.releaseYear = currNode
-                                end if
-                            end if
-
-                            'fetching ratings
-                            currNode = rowItem.ratings
-                            if Type(currNode) = "roArray" and currNode.Count() = 1
-                                currNode = currNode[0].value
-                                if currNode <> invalid
-                                    rowItemObj.ratings = currNode
-                                end if
-                            end if
-
-                            rowItemsContainers.Push(rowItemObj)
-                        end for
-                        rowObj.rowItems = rowItemsContainers
-                    end if
+                if Type(releases) = "roArray" and releases.Count() = 1 then
+                    rowItemObj.releaseYear = getTargetObj(releases[0], "releaseYear")
                 end if
-                rowContainers.Push(rowObj)
+                ratings = getTargetObj(rowItem, "ratings")
+
+                if Type(ratings) = "roArray" and ratings.Count() = 1 then
+                    rowItemObj.ratings = getTargetObj(ratings[0], "value")
+                end if
+                rowItemsContainers.Push(rowItemObj)
             end for
         end if
-    else
-        errorGettingCatalog = true
-    end if
+        rowObj.rowItems = rowItemsContainers
+
+        if rowObj.setId <> invalid then
+            rowObj.isLoaded = true
+        else
+            rowObj.isLoaded = false
+        end if
+        rowContainers.Push(rowObj)
+    end for
     payload = CreateObject("roAssociativeArray")
     payload.AddReplace("errorGettingCatalog", errorGettingCatalog)
     payload.AddReplace("pageTitle", pageTitle)

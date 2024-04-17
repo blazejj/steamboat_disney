@@ -2,6 +2,8 @@
 <component name="DataService" extends="BaseService" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
 	<script type="text/brightscript" uri="DataService.brs" />
 	<interface>
-        <field id="payload" type="assocarray" />
+		<field id="payload" type="assocarray" />
+		<field id="refPayload" type="assocarray" />
+		<field id="refReq" type="assocarray" alwaysNotify="true" />
 	</interface>
 </component>

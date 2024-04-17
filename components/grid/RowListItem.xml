@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component name="RowListItem" extends="Group" xsi:noNamespaceSchemaLocation="https://devtools.web.roku.com/schema/RokuSceneGraph.xsd">
     <interface>
-        <field id="itemContent" type="node" onChange="onItemContent"/>
-        <field id="focusPercent" type="float" onChange="onFocus"/>
-        <field id="rowFocusPercent" type="float" onChange="onRowFocus"/>
+        <field id="itemContent" type="node" onChange="onItemContent" />
+        <field id="focusPercent" type="float" onChange="onFocus" />
+        <field id="rowFocusPercent" type="float" onChange="onRowFocus" />
     </interface>
     <script type="text/brightscript" uri="RowListItem.brs" />
     <children>
