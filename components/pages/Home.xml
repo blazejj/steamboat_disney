@@ -3,7 +3,9 @@
     <script type="text/brightscript" uri="Home.brs" />
 	<interface>
         <field id="payload" type="assocarray" alwaysNotify="true" onChange="onPayload" />
+		<field id="refPayload" type="assocarray" alwaysNotify="true" onChange="onRefPayload" />
 		<field id="setFocus" type="boolean" alwaysNotify="true" onChange="handleFocus" />
+		<field id="refReq" type="assocarray" />
 	</interface>
     <children>
         <Label

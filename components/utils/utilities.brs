@@ -5,6 +5,25 @@ function getConfig() as object
     return m.config
 end function
 
+function getTargetObj(srcObj as object, pathToTarget as string, separator = "/" as string) as object
+    retVal = invalid
+    if srcObj <> invalid and pathToTarget <> invalid
+        pathArr = pathToTarget.Split(separator)
+        for each pathPart in pathArr
+            if srcObj[pathPart] <> invalid then
+                srcObj = srcObj[pathPart]
+                retVal = srcObj
+            else if pathPart = "{}" 'arbitrary node object
+                srcObj = getArbSingleChildObj(srcObj)
+                retVal = srcObj
+            else
+                retVal = invalid
+            end if
+        end for
+    end if
+    return retVal
+end function
+
 function getArbSingleChildObj(srcObj as object) as object
     retVal = invalid
     childItems = srcObj.Items()

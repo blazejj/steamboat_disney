@@ -2,6 +2,7 @@ sub init() as void
     m.itemImage = m.top.findNode("itemImage") 
     m.itemLabel = m.top.findNode("itemLabel")
 end sub
+
 sub onItemContent()
     itemData = m.top.itemContent
     if itemData <> invalid then
